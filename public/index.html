@@ -4,79 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cosmic Sync - Our Universe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         body {
-            background-color: #050515;
-            color: #e0e0ff;
+            background-color: #030310;
+            color: #f0f0ff;
             height: 100vh;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-        /* Cosmic Starry Background Animation */
+        /* Cosmic Animated Background */
         .stars {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            background: radial-gradient(ellipse at bottom, #101026 0%, #030310 100%);
             z-index: -1;
+        }
+
+        /* --- LOGIN OVERLAY --- */
+        #loginOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 3, 16, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+        }
+        .login-card {
+            background: rgba(20, 20, 45, 0.8);
+            border: 1px solid rgba(255, 121, 198, 0.3);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(255, 121, 198, 0.2);
+            width: 320px;
+        }
+        .login-card h2 {
+            color: #ff79c6;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            text-align: center;
+            font-size: 1.1rem;
+            outline: none;
+        }
+        .login-card button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ff79c6, #bd93f9);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .login-card button:hover { opacity: 0.9; transform: scale(1.02); }
+        .error-msg { color: #ff5555; font-size: 0.85rem; margin-top: 10px; display: none; }
+
+        /* --- MAIN APP UI --- */
+        #appContent {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
         }
         header {
             text-align: center;
             padding: 15px;
-            background: rgba(15, 15, 35, 0.8);
+            background: rgba(15, 15, 35, 0.7);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             letter-spacing: 2px;
-            color: #ffb7ff;
-            text-shadow: 0 0 10px rgba(255, 183, 255, 0.5);
+            color: #ff79c6;
+            font-weight: 600;
+            text-shadow: 0 0 15px rgba(255, 121, 198, 0.4);
         }
         .container {
             display: flex;
             flex: 1;
             padding: 20px;
             gap: 20px;
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
             width: 100%;
         }
-        .chat-section, .canvas-section {
-            background: rgba(25, 25, 50, 0.6);
+        .card {
+            background: rgba(18, 18, 38, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            border-radius: 16px;
             flex: 1;
             display: flex;
             flex-direction: column;
-            padding: 15px;
-            backdrop-filter: blur(5px);
+            padding: 20px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         h3 {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #8be9fd;
             font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         #chat-box {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            background: rgba(10, 10, 20, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: rgba(8, 8, 18, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         .message {
-            margin-bottom: 8px;
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 14px;
+            border-radius: 12px;
             background: rgba(139, 233, 253, 0.1);
-            border-left: 3px solid #8be9fd;
+            border-left: 4px solid #8be9fd;
+            max-width: 85%;
+            word-wrap: break-word;
             animation: fadeIn 0.3s ease-in-out;
         }
+        .message strong { color: #ff79c6; display: block; font-size: 0.8rem; margin-bottom: 2px; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
@@ -86,150 +155,210 @@
             gap: 10px;
         }
         input, button {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
             outline: none;
         }
-        input { flex: 1; }
-        button {
-            background: #ff79c6;
+        input::placeholder { color: #888; }
+        .chat-input-area input[type="text"] { flex: 1; }
+        .btn-action {
+            background: linear-gradient(135deg, #ff79c6, #bd93f9);
             color: #fff;
             border: none;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
             transition: 0.2s;
         }
-        button:hover { background: #ff92d0; }
-        
+        .btn-action:hover { opacity: 0.9; }
+
         /* Canvas Styling */
+        .canvas-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
         #cosmicCanvas {
             flex: 1;
-            background: rgba(5, 5, 15, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
+            background: rgba(8, 8, 18, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
             cursor: crosshair;
+            width: 100%;
+            height: 100%;
         }
         .canvas-controls {
-            margin-top: 10px;
+            margin-top: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+
+        @media(max-width: 768px) {
+            .container { flex-direction: column; height: auto; }
+            body { height: auto; overflow: auto; }
+            #appContent { height: 100vh; }
         }
     </style>
 </head>
 <body>
 
     <div class="stars"></div>
-    <header>🌌 Cosmic Sync - Our Private Universe 🌌</header>
 
-    <div class="container">
-        <!-- Live Chat Section -->
-        <div class="chat-section">
-            <h3>Stardust Messages</h3>
-            <div id="chat-box"></div>
-            <div class="chat-input-area">
-                <input type="text" id="nameInput" placeholder="Your Name" style="max-width: 100px;">
-                <input type="text" id="messageInput" placeholder="Send a cosmic message...">
-                <button onclick="sendMessage()">Send</button>
-            </div>
+    <!-- LOGIN SCREEN -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h2>🌌 Cosmic Gateway</h2>
+            <input type="password" id="passInput" placeholder="Enter Secret Password">
+            <button onclick="checkPassword()">Unlock Universe</button>
+            <div id="errorMsg" class="error-msg">Incorrect Password! Try again.</div>
         </div>
+    </div>
 
-        <!-- Shared Canvas Section -->
-        <div class="canvas-section">
-            <h3>Shared Constellation Canvas</h3>
-            <canvas id="cosmicCanvas"></canvas>
-            <div class="canvas-controls">
-                <span style="font-size: 0.85rem; color: #aaa;">Draw together in real-time</span>
-                <button onclick="clearCanvas()" style="background: #ff5555; padding: 5px 10px; font-size: 0.8rem;">Clear Canvas</button>
+    <!-- MAIN APP SCREEN -->
+    <div id="appContent">
+        <header>✨ Cosmic Sync - Our Private Universe ✨</header>
+
+        <div class="container">
+            <!-- Chat Section -->
+            <div class="card">
+                <h3>💬 Stardust Messages</h3>
+                <div id="chat-box"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="nameInput" placeholder="Name" style="width: 90px;">
+                    <input type="text" id="messageInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+                    <button class="btn-action" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+
+            <!-- Canvas Section -->
+            <div class="card canvas-wrapper">
+                <h3>🎨 Constellation Canvas</h3>
+                <canvas id="cosmicCanvas"></canvas>
+                <div class="canvas-controls">
+                    <span style="font-size: 0.8rem; color: #aaa;">Draw together in real-time</span>
+                    <button class="btn-action" onclick="clearCanvas()" style="background: #ff5555; padding: 6px 14px; font-size: 0.8rem;">Clear Universe</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Socket.io Client Library -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
-
-        // Chat Logic
-        function sendMessage() {
-            const name = document.getElementById('nameInput').value || 'Anonymous';
-            const message = document.getElementById('messageInput').value;
-            if (message.trim() !== '') {
-                socket.emit('cosmic-message', { name, message });
-                document.getElementById('messageInput').value = '';
+        // PASSWORD LOGIC
+        function checkPassword() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "272009") {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('appContent').style.display = 'flex';
+                initApp(); // Initialize canvas & socket only after login
+            } else {
+                const err = document.getElementById('errorMsg');
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 2500);
             }
         }
 
-        socket.on('cosmic-message', (data) => {
-            const chatBox = document.getElementById('chat-box');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'message';
-            msgDiv.innerHTML = `<strong>${data.name}:</strong> ${data.message}`;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+        // Allow Enter key for login
+        document.getElementById('passInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') checkPassword();
         });
 
-        // Drawing Logic
-        const canvas = document.getElementById('cosmicCanvas');
-        const ctx = canvas.getContext('2d');
+        function initApp() {
+            const socket = io();
 
-        function resizeCanvas() {
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+            // CHAT LOGIC
+            function sendMessage() {
+                const name = document.getElementById('nameInput').value.trim() || 'Cosmic Traveler';
+                const message = document.getElementById('messageInput').value.trim();
+                if (message !== '') {
+                    socket.emit('cosmic-message', { name, message });
+                    document.getElementById('messageInput').value = '';
+                }
+            }
 
-        let painting = false;
+            window.sendMessage = sendMessage;
 
-        canvas.addEventListener('mousedown', startPosition);
-        canvas.addEventListener('mouseup', endPosition);
-        canvas.addEventListener('mousemove', draw);
+            window.handleKeyPress = function(e) {
+                if (e.key === 'Enter') sendMessage();
+            }
 
-        function startPosition(e) {
-            painting = true;
-            draw(e);
-        }
-        function endPosition() {
-            painting = false;
-            ctx.beginPath();
-        }
+            socket.on('cosmic-message', (data) => {
+                const chatBox = document.getElementById('chat-box');
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message';
+                msgDiv.innerHTML = `<strong>${data.name}</strong>${data.message}`;
+                chatBox.appendChild(msgDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
 
-        function draw(e) {
-            if (!painting) return;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            // CANVAS DRAWING LOGIC
+            const canvas = document.getElementById('cosmicCanvas');
+            const ctx = canvas.getContext('2d');
 
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#ff79c6';
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
 
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
+            let painting = false;
+            let lastX = 0;
+            let lastY = 0;
 
-            // Send draw coordinates to partner
-            socket.emit('draw-action', { x, y, start: false });
-        }
+            canvas.addEventListener('mousedown', (e) => {
+                painting = true;
+                const rect = canvas.getBoundingClientRect();
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
+            });
 
-        socket.on('draw-action', (data) => {
-            // Render partner's drawing
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#8be9fd';
-            ctx.lineTo(data.x, data.y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(data.x, data.y);
-        });
+            canvas.addEventListener('mouseup', () => painting = false);
+            canvas.addEventListener('mouseleave', () => painting = false);
 
-        function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.addEventListener('mousemove', (e) => {
+                if (!painting) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                // Draw locally
+                drawStroke(lastX, lastY, x, y, '#ff79c6');
+
+                // Emit to server
+                socket.emit('draw-action', { x0: lastX, y0: lastY, x1: x, y1: y });
+
+                lastX = x;
+                lastY = y;
+            });
+
+            function drawStroke(x0, y0, x1, y1, color) {
+                ctx.beginPath();
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(x1, y1);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+                ctx.closePath();
+            }
+
+            socket.on('draw-action', (data) => {
+                drawStroke(data.x0, data.y0, data.x1, data.y1, '#8be9fd');
+            });
+
+            window.clearCanvas = function() {
+                socket.emit('clear-canvas');
+            }
+
+            socket.on('clear-canvas', () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            });
         }
     </script>
 </body>
