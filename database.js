@@ -1,33 +1,70 @@
-const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 const path = require('path');
 
-const dbPath = path.resolve(__dirname, 'pinsta.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Database opening error: ' + err.message);
-  } else {
-    console.log('Connected to SQLite database.');
+const dataFile = path.resolve(__dirname, 'data.json');
+
+// Initialize data file agar pehle se na ho
+if (!fs.existsSync(dataFile)) {
+  const initialData = { users: [], posts: [] };
+  fs.writeFileSync(dataFile, JSON.stringify(initialData, null, 2));
+}
+
+// Read data helper
+const getData = () => {
+  try {
+    const data = fs.readFileSync(dataFile, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    return { users: [], posts: [] };
   }
-});
+};
 
-// Tables create karna agar pehle se na ho
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    email_or_phone TEXT NOT NULL,
-    password TEXT NOT NULL
-  )`);
+// Write data helper
+const saveData = (data) => {
+  fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
+};
 
-  db.run(`CREATE TABLE IF NOT EXISTS posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    username TEXT,
-    content TEXT,
-    image_url TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-  )`);
-});
+const db = {
+  // Get user by username
+  findUserByUsername: (username, callback) => {
+    const data = getData();
+    const user = data.users.find(u => u.username === username);
+    callback(null, user);
+  },
+
+  // Insert new user
+  insertUser: (userObj, callback) => {
+    const data = getData();
+    const existing = data.users.find(u => u.username === userObj.username);
+    if (existing) {
+      return callback(new Error('Username already taken'));
+    }
+    const newUser = { id: Date.now(), ...userObj };
+    data.users.push(newUser);
+    saveData(data);
+    callback(null, { lastID: newUser.id });
+  },
+
+  // Get all posts
+  getAllPosts: (callback) => {
+    const data = getData();
+    // Latest posts upar dikhane ke liye reverse order
+    const posts = [...data.posts].reverse();
+    callback(null, posts);
+  },
+
+  // Insert new post
+  insertPost: (postObj, callback) => {
+    const data = getData();
+    const newPost = { 
+      id: Date.now(), 
+      ...postObj, 
+      created_at: new Date().toLocaleString() 
+    };
+    data.posts.push(newPost);
+    saveData(data);
+    callback(null);
+  }
+};
 
 module.exports = db;
