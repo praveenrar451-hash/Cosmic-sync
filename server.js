@@ -7,6 +7,9 @@ const db = require('./database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ⭐ CRITICAL FIX FOR RENDER PROXY ⭐
+app.set('trust proxy', 1);
+
 // Middleware setup
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -18,7 +21,10 @@ app.use(session({
   secret: 'pinsta_super_secret_key_2026',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 day
+  cookie: { 
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: false // Render ke free HTTP/HTTPS URL ke liye false rakhein
+  }
 }));
 
 // Authentication Middleware
