@@ -7,21 +7,23 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
-// Serve static files from 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Real-time socket connection
 io.on('connection', (socket) => {
     console.log('A user connected to the cosmos:', socket.id);
 
-    // Handle cosmic chat messages
+    // Handle messages
     socket.on('cosmic-message', (data) => {
-        io.emit('cosmic-message', data); // Broadcast to both partners
+        io.emit('cosmic-message', data);
     });
 
-    // Handle real-time shared drawing/doodle
+    // Handle drawing coordinates safely
     socket.on('draw-action', (data) => {
         socket.broadcast.emit('draw-action', data);
+    });
+
+    socket.on('clear-canvas', () => {
+        io.emit('clear-canvas');
     });
 
     socket.on('disconnect', () => {
