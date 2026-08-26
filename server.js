@@ -31,7 +31,6 @@ const isAuthenticated = (req, res, next) => {
 
 // --- ROUTES ---
 
-// Root route
 app.get('/', (req, res) => {
   if (req.session.user) {
     res.redirect('/feed');
@@ -50,13 +49,11 @@ app.post('/signup', async (req, res) => {
   
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const query = `INSERT INTO users (username, email_or_phone, password) VALUES (?, ?, ?)`;
-    
-    db.run(query, [username, email_or_phone, hashedPassword], function(err) {
+    db.insertUser({ username, email_or_phone, password: hashedPassword }, (err, result) => {
       if (err) {
-        return res.render('signup', { error: 'Username already taken or invalid details!' });
+        return res.render('signup', { error: 'Username already taken!' });
       }
-      req.session.user = { id: this.lastID, username };
+      req.session.user = { id: result.lastID, username };
       res.redirect('/feed');
     });
   } catch (err) {
@@ -72,7 +69,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   
-  db.get(`SELECT * FROM users WHERE username = ?`, [username], async (err, user) => {
+  db.findUserByUsername(username, async (err, user) => {
     if (err || !user) {
       return res.render('login', { error: 'Invalid username or password!' });
     }
@@ -87,9 +84,9 @@ app.post('/login', (req, res) => {
   });
 });
 
-// Feed Page (Protected Route)
+// Feed Page
 app.get('/feed', isAuthenticated, (req, res) => {
-  db.all(`SELECT * FROM posts ORDER BY id DESC`, [], (err, posts) => {
+  db.getAllPosts((err, posts) => {
     if (err) {
       posts = [];
     }
@@ -102,8 +99,14 @@ app.post('/post', isAuthenticated, (req, res) => {
   const { content, image_url } = req.body;
   const { id, username } = req.session.user;
 
-  const query = `INSERT INTO posts (user_id, username, content, image_url) VALUES (?, ?, ?, ?)`;
-  db.run(query, [id, username, content, image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600'], (err) => {
+  const postData = {
+    user_id: id,
+    username: username,
+    content: content,
+    image_url: image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600'
+  };
+
+  db.insertPost(postData, (err) => {
     res.redirect('/feed');
   });
 });
