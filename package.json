@@ -1,13 +1,17 @@
 {
-  "name": "cosmic-sync",
+  "name": "pinsta",
   "version": "1.0.0",
-  "description": "A private space-themed real-time couple web app",
+  "description": "A social media web app",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "ejs": "^3.1.9",
     "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "express-session": "^1.18.0",
+    "sqlite3": "^5.1.7"
   }
 }
+
