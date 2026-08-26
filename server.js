@@ -7,14 +7,16 @@ const db = require('./database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ⭐ CRITICAL FIX FOR RENDER PROXY ⭐
 app.set('trust proxy', 1);
 
 // Middleware setup
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicit View Engine Setup
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 // Session configuration
 app.use(session({
@@ -23,7 +25,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     maxAge: 24 * 60 * 60 * 1000,
-    secure: false // Render ke free HTTP/HTTPS URL ke liye false rakhein
+    secure: false 
   }
 }));
 
@@ -75,8 +77,8 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
   
-  db.findUserByUsername(username, async (err, user) => {
-    if (err || !user) {
+  db.findUserByUsername(username, async (dirErr, user) => {
+    if (dirErr || !user) {
       return res.render('login', { error: 'Invalid username or password!' });
     }
     
@@ -112,7 +114,7 @@ app.post('/post', isAuthenticated, (req, res) => {
     image_url: image_url || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600'
   };
 
-  db.insertPost(postData, (err) => {
+  db.insertPost(postData, () => {
     res.redirect('/feed');
   });
 });
